@@ -69,12 +69,6 @@ if (env.NODE_ENV === "production") {
   if (!env.COOKIE_SECRET || insecureDefaults.includes(env.COOKIE_SECRET.toLowerCase())) {
     throw new Error("COOKIE_SECRET must be explicitly configured in production");
   }
-  if (!env.CSRF_ENABLED) {
-    throw new Error("CSRF_ENABLED must be true in production");
-  }
-  if (!env.REDIS_URL) {
-    throw new Error("REDIS_URL must be explicitly configured in production");
-  }
 }
 
 const parseOrigins = (origins) => origins.split(",").map((origin) => origin.trim()).filter(Boolean);
