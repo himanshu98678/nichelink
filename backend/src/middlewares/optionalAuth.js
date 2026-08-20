@@ -1,6 +1,5 @@
 const prisma = require("../lib/prisma");
 const jwt = require("jsonwebtoken");
-const AppError = require("../utils/AppError");
 
 module.exports = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -25,16 +24,14 @@ module.exports = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(new AppError(401, "Invalid authentication token"));
+      req.user = null;
+      return next();
     }
 
     req.user = user;
     return next();
-  } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return next(new AppError(401, "Authentication token has expired"));
-    }
-
-    return next(new AppError(401, "Invalid authentication token"));
+  } catch {
+    req.user = null;
+    return next();
   }
 };

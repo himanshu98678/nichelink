@@ -145,10 +145,11 @@ async function sendMessage(userId, { conversationId, content, replyToId, attachm
   // Broadcast real-time message event to room
   socketService.toConversation(conversationId, "message:new", message);
 
-  // Send MESSAGE notifications to all other conversation members
-  const otherMembers = await getConversationRecipients(conversationId, userId);
+  // Notification persistence is best effort and must not delay message delivery.
+  void (async () => {
+    const otherMembers = await getConversationRecipients(conversationId, userId);
+    if (otherMembers.length === 0) {return;}
 
-  if (otherMembers.length > 0) {
     const notificationService = require("./notificationService");
     const sender = await prisma.user.findUnique({ where: { id: userId }, select: { username: true } });
     await notificationService.createBulkNotifications(
@@ -160,9 +161,9 @@ async function sendMessage(userId, { conversationId, content, replyToId, attachm
         message: `${sender?.username || "Someone"} sent you a message`,
         referenceId: message.id,
         referenceType: "MESSAGE",
-      }))
+      })),
     ).catch(() => null);
-  }
+  })().catch(() => null);
 
   return message;
 }
