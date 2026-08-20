@@ -1,0 +1,69 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    ports:
+      - "${API_PORT:-5000}:5000"
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  turn:
+    image: coturn/coturn:latest
+    ports:
+      - "3478:3478/tcp"
+      - "3478:3478/udp"
+      - "49152-49200:49152-49200/udp"
+    environment:
+      - TURN_PORT=3478
+      - TURN_SECRET=${TURN_SECRET:-nichelink_turn_secret}
+      - TURN_REALM=${TURN_REALM:-nichelink.local}
+    command:
+      - "-n"
+      - "--log-file=stdout"
+      - "--min-port=49152"
+      - "--max-port=49200"
+      - "--lt-cred-mech"
+      - "--realm=$${TURN_REALM}"
+      - "--static-auth-secret=$${TURN_SECRET}"
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  redis_data:

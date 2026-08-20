@@ -1,0 +1,22 @@
+@import "./styles/fonts.css";
+@import "./styles/theme.css";
+@import "tailwindcss";
+
+@theme {
+  --color-background: #f8fafc;
+}
+
+:root {
+  --background: #f8fafc;
+  font-family: 'Inter', sans-serif;
+  color-scheme: light;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #000000;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+

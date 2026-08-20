@@ -1,0 +1,6 @@
+{
+  "name": "NicheLink",
+  "description": "NicheLink professional networking platform. Connect with professionals, join niche communities, find jobs, and collaborate on projects.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

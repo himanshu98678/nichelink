@@ -1,0 +1,11 @@
+﻿
+node_modules\\eslint\\bin\\eslint.js : electron: [DEP0062]: `node --debug` and 
+`node --debug-brk` are invalid. Please use `node --inspect` and `node 
+--inspect-brk` instead.
+At line:1 char:1
++ node_modules\\eslint\\bin\\eslint.js --config eslint.config.cjs . --e ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (electron: [DEP0...t-brk` instead. 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
