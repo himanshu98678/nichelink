@@ -69,6 +69,12 @@ if (env.NODE_ENV === "production") {
   if (!env.COOKIE_SECRET || insecureDefaults.includes(env.COOKIE_SECRET.toLowerCase())) {
     throw new Error("COOKIE_SECRET must be explicitly configured in production");
   }
+
+  const productionOrigins = env.CORS_ORIGINS.split(",").map((origin) => origin.trim()).filter(Boolean);
+  const hasLocalhostOrigin = [env.APP_URL, ...productionOrigins].some((origin) => /localhost|127\.0\.0\.1/.test(origin));
+  if (hasLocalhostOrigin) {
+    throw new Error("APP_URL and CORS_ORIGINS must use production URLs in production");
+  }
 }
 
 const parseOrigins = (origins) => origins.split(",").map((origin) => origin.trim()).filter(Boolean);

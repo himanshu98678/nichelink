@@ -23,9 +23,9 @@ A Node.js + Express + Prisma + PostgreSQL backend for the NicheLink SaaS foundat
    ```
 2. Create a PostgreSQL database (for example `nichelink_backend`).
 3. Update `.env` with your database connection details and optional SMTP/Cloudinary/Google settings.
-4. Apply the Prisma schema to the database:
+4. Apply committed Prisma migrations to the database:
    ```bash
-   npx prisma db push
+   npx prisma migrate deploy
    ```
 5. Generate Prisma Client:
    ```bash

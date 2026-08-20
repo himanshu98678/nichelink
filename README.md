@@ -146,9 +146,9 @@ cd backend
 # Install dependencies
 npm install
 
-# Push schema to database / generate Prisma client
-npx prisma db push
+# Generate Prisma client and apply committed migrations
 npx prisma generate
+npx prisma migrate deploy
 
 # (Optional) Seed demo accounts
 node seed_demo_users.js
@@ -209,22 +209,30 @@ npm run build
 
 ## 8. Production Deployment
 
-### Production Docker Deployment
-A complete multi-container production configuration is provided in `backend/docker-compose.production.yml` containing:
-- Express API server
-- PostgreSQL 16
-- Redis 7
-- Coturn TURN/STUN media relay server
+### Production Architecture
+- **Frontend**: Vercel, rooted at `frontend`, build command `npm run build`, output `dist`.
+- **Backend**: Render or Railway Node service, rooted at `backend`, start command `node server.js`.
+- **Database**: Neon PostgreSQL using `DATABASE_URL` for runtime queries and `DIRECT_URL` for Prisma migrations.
+- **Realtime**: Socket.IO is served by the backend URL; configure `VITE_API_URL` without a localhost value.
+- **WebRTC**: HTTPS is required. Configure production TURN values in the frontend when cross-network calls need relay support.
 
+Backend build command:
 ```bash
-cd backend
-
-# 1. Generate secure production environment variables
-npm run generate:prod-env
-
-# 2. Launch production stack
-docker-compose -f docker-compose.production.yml up -d --build
+npm install && npx prisma generate && npx prisma migrate deploy
 ```
+
+Backend health check: `/health`
+
+Required backend environment variable names:
+`NODE_ENV`, `PORT`, `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, `COOKIE_SECRET`, `APP_URL`, and `CORS_ORIGINS`.
+Configure SMTP, Cloudinary, Redis, and Stripe variables when those integrations are enabled.
+
+Required frontend environment variable names:
+`VITE_API_URL`, `VITE_WEBRTC_STUN_URL`, `VITE_WEBRTC_TURN_URL`, `VITE_WEBRTC_TURN_USERNAME`, and `VITE_WEBRTC_TURN_CREDENTIAL`.
+
+For Stripe, configure the webhook URL as `<backend-url>/api/billing/webhook` and provide `STRIPE_WEBHOOK_SECRET`; use Stripe test mode until live payments are explicitly approved.
+
+The optional `backend/docker-compose.production.yml` is a self-hosted stack and includes its own Postgres, Redis, and Coturn services. Do not use its local Postgres service when deploying the expected Neon architecture.
 
 ### Static Frontend Deployment
 Build the optimized static assets:
